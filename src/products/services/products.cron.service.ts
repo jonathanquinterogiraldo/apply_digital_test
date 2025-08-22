@@ -11,7 +11,8 @@ export class ProductsCronService {
   // Cronjob executes every hour
   @Cron('0 * * * *')
   async handleCron() {
-    this.logger.debug('Fetching products from Contentful...');
-    await this.productsService.autoFetchAndSaveProducts();
+    this.logger.log('Fetching products from Contentful API...');
+    const productsInserted = await this.productsService.autoFetchAndSaveProducts();
+    this.logger.log(`${productsInserted} product(s) added at ${new Date().toISOString()}`);
   }
 }

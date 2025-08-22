@@ -8,6 +8,7 @@ import { getTypeOrmConfig } from './config/typeorm.config';
 import { HealthModule } from './health/health.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from './redis/redis.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RedisModule } from './redis/redis.module';
       useFactory: (configService: ConfigService) => getTypeOrmConfig(configService),
     }),
     HealthModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, DeleteDateColumn, CreateDateColumn } from 'typeorm';
 
 @Entity({ name: 'products' })
 export class Product {
@@ -31,4 +31,10 @@ export class Product {
 
   @Column('int')
   stock: number;
+
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deletedAt?: Date | null;
 }

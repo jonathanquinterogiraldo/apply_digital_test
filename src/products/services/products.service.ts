@@ -1,11 +1,13 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
 import axios, { AxiosResponse } from 'axios';
 import Redis from 'ioredis';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from '../entities/product.entity';
-import { Repository } from 'typeorm';
-import { ContentfulProduct } from '../dto/contentful-product.interface';
+import { Repository, SelectQueryBuilder } from 'typeorm';
+import { ContentfulProduct } from '../interfaces/contentful-product.interface';
 import { InjectRedis } from 'src/redis/redis.decorators';
+import { ProductFilters } from '../types/product-filters.type';
+import { PaginatedProductsResponse } from '../types/paginated-products';
 
 @Injectable()
 export class ProductsService {
@@ -13,10 +15,10 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
     @InjectRedis() private readonly redis: Redis,
-  ) { }
+  ) {}
 
   // Main function for fetch and save contentful product in postgres if they don not exist
-  async autoFetchAndSaveProducts(): Promise<void> {
+  async autoFetchAndSaveProducts(): Promise<number> {
     try {
       const items = await this.fetchProductsFromContentful();
       const { newItems, newKeys } = await this.filterExistingProducts(items);
@@ -24,9 +26,10 @@ export class ProductsService {
 
       await this.markProductsInRedis(newKeys);
 
-      if (productsToInsert.length > 0) {
-        await this.productRepo.save(productsToInsert);
-      }
+      if (!productsToInsert.length) return 0;
+
+      const insertedProductsArray = await this.productRepo.save(productsToInsert);
+      return insertedProductsArray.length;
     } catch {
       throw new HttpException('Failed to fetch products', 500);
     }
@@ -87,6 +90,54 @@ export class ProductsService {
     const pipeline = this.redis.pipeline();
     keys.forEach((key) => pipeline.set(key, '1'));
     await pipeline.exec();
+  }
+
+  async getPaginatedProducts(
+    page: number = 1,
+    limit: number | undefined,
+    filters?: ProductFilters,
+  ): Promise<PaginatedProductsResponse> {
+    const query = this.productRepo.createQueryBuilder('product');
+
+    this.applyProductFilters(query, filters);
+
+    const defaultLimit = Number(process.env.PAGINATION_LIMIT);
+    const calculatedLimit = limit ? Math.min(limit, defaultLimit) : defaultLimit;
+
+    const data = await query
+      .take(calculatedLimit)
+      .skip((page - 1) * calculatedLimit)
+      .getMany();
+
+    const total = await query.getCount();
+    const totalPages = Math.ceil(total / calculatedLimit);
+
+    return { data, page, limit: calculatedLimit, totalPages, totalProducts: total };
+  }
+
+  private applyProductFilters(query: SelectQueryBuilder<Product>, filters: ProductFilters = {}) {
+    const { stock, minPrice, maxPrice, ...likeFilters } = filters;
+
+    // string fields that use LIKE
+    Object.entries(likeFilters).forEach(([key, value]) => {
+      if (value) query.andWhere(`product.${key} ILIKE :${key}`, { [key]: `%${value}%` });
+    });
+
+    // numeric fields that use = or <>
+    if (stock) query.andWhere('product.stock = :stock', { stock });
+    if (minPrice) query.andWhere('product.price >= :minPrice', { minPrice });
+    if (maxPrice) query.andWhere('product.price <= :maxPrice', { maxPrice });
+
+    return query;
+  }
+
+  public async removeProduct(id: string) {
+    const result = await this.productRepo.softDelete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Product with id ${id} not found`);
+    }
+    await this.redis.del(`product:${id}`);
+    return { success: true, removedId: id };
   }
 
   async getAllProducts() {
