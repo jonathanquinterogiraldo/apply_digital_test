@@ -6,12 +6,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/typeorm.config';
 import { HealthModule } from './health/health.module';
-import { HealthController } from './health/health.controller';
-import { TerminusModule } from '@nestjs/terminus';
+import { ScheduleModule } from '@nestjs/schedule';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
+    RedisModule,
     ProductsModule,
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
