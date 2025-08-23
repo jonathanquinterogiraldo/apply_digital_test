@@ -9,6 +9,7 @@ import { HealthModule } from './health/health.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from './redis/redis.module';
 import { ReportsModule } from './reports/reports.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -19,14 +20,15 @@ import { ReportsModule } from './reports/reports.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule, AuthModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => getTypeOrmConfig(configService),
     }),
     HealthModule,
     ReportsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

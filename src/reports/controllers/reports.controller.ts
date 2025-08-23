@@ -5,7 +5,10 @@ import { DeletedPercentageReportDto } from '../dto/deleted-percentage.report.dto
 import { plainToInstance } from 'class-transformer';
 import { WithOrWithoutPriceReportDto } from '../dto/with-or-without-price-percentage.report.dto';
 import { TopBrandReportDto } from '../dto/top-brand-percentage.report.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt-auth-guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('reports')
 export class ReportsController {
     constructor(private readonly reportsService: ReportsService) { }
