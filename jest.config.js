@@ -2,6 +2,7 @@
 module.exports = {
     preset: 'ts-jest',
     testEnvironment: 'node',
+    collectCoverage: true,
     rootDir: './',
     moduleFileExtensions: ['ts', 'js', 'json'],
     testRegex: '.*\\.spec\\.ts$',
