@@ -17,7 +17,7 @@ describe('AuthController', () => {
             sign: jest.fn().mockReturnValue('mockToken'),
           },
         },
-      ]
+      ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);

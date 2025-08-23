@@ -11,25 +11,25 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth-guard';
 @UseGuards(JwtAuthGuard)
 @Controller('reports')
 export class ReportsController {
-    constructor(private readonly reportsService: ReportsService) { }
+  constructor(private readonly reportsService: ReportsService) {}
 
-    @Get('deleted-percentage')
-    async getDeletedPercentage(): Promise<DeletedPercentageReportDto> {
-        const report = await this.reportsService.getDeletedPercentage();
-        return plainToInstance(DeletedPercentageReportDto, report, { excludeExtraneousValues: true });
-    }
+  @Get('deleted-percentage')
+  async getDeletedPercentage(): Promise<DeletedPercentageReportDto> {
+    const report = await this.reportsService.getDeletedPercentage();
+    return plainToInstance(DeletedPercentageReportDto, report, { excludeExtraneousValues: true });
+  }
 
-    @Get('with-or-without-price')
-    async getWithOrWithoutPrice(
-        @Query() dateRange: DateRangeDto,
-    ): Promise<WithOrWithoutPriceReportDto> {
-        const report = await this.reportsService.getWithOrWithoutPrice(dateRange);
-        return plainToInstance(WithOrWithoutPriceReportDto, report, { excludeExtraneousValues: true });
-    }
+  @Get('with-or-without-price')
+  async getWithOrWithoutPrice(
+    @Query() dateRange: DateRangeDto,
+  ): Promise<WithOrWithoutPriceReportDto> {
+    const report = await this.reportsService.getWithOrWithoutPrice(dateRange);
+    return plainToInstance(WithOrWithoutPriceReportDto, report, { excludeExtraneousValues: true });
+  }
 
-    @Get('top-brand-percentage')
-    async getTopBrands(): Promise<TopBrandReportDto[]> {
-        const report = await this.reportsService.getTopBrands();
-        return plainToInstance(TopBrandReportDto, report, { excludeExtraneousValues: true });
-    }
+  @Get('top-brand-percentage')
+  async getTopBrands(): Promise<TopBrandReportDto[]> {
+    const report = await this.reportsService.getTopBrands();
+    return plainToInstance(TopBrandReportDto, report, { excludeExtraneousValues: true });
+  }
 }

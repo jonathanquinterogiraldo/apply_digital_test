@@ -10,25 +10,28 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from './redis/redis.module';
 import { ReportsModule } from './reports/reports.module';
 import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => getTypeOrmConfig(configService),
+    }),
     RedisModule,
     ProductsModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule, AuthModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => getTypeOrmConfig(configService),
-    }),
+
     HealthModule,
     ReportsModule,
     AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

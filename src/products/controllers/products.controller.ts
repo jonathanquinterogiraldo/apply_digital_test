@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, Query } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 import { ProductsService } from '../services/products.service';
 import { GetProductsDto } from '../dto/get-products.dto';
 import { PaginatedProductsResponse } from '../types/paginated-products';
@@ -16,7 +16,12 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  removeProduct(@Param('id') id: string) {
+  removeProduct(@Param('id') id: string): Promise<{ success: boolean; removedId: string }> {
     return this.productsService.removeProduct(id);
+  }
+
+  @Post('seed')
+  async seedMockProducts(): Promise<{ success: boolean }> {
+    return this.productsService.seedMockProductsFromFile();
   }
 }

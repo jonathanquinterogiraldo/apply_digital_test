@@ -6,7 +6,7 @@ import { ProductsService } from './products.service';
 export class ProductsCronService {
   private readonly logger = new Logger(ProductsCronService.name);
 
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(private readonly productsService: ProductsService) {}
 
   // Cronjob executes every hour
   @Cron('0 * * * *')

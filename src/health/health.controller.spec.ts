@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HealthController } from './health.controller';
 import { HealthCheckService, TypeOrmHealthIndicator } from '@nestjs/terminus';
+import { RedisHealthIndicator } from './redis.healt.indicator';
 
 describe('HealthController', () => {
   let controller: HealthController;
@@ -11,6 +12,7 @@ describe('HealthController', () => {
       providers: [
         { provide: HealthCheckService, useValue: {} },
         { provide: TypeOrmHealthIndicator, useValue: {} },
+        { provide: RedisHealthIndicator, useValue: {} }, // <--- mock para Redis
         { provide: 'TERMINUS_ERROR_LOGGER', useValue: {} },
         { provide: 'TERMINUS_LOGGER', useValue: {} },
         { provide: 'HealthCheckExecutor', useValue: {} },

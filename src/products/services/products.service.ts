@@ -1,4 +1,4 @@
-import { Injectable, HttpException, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import axios, { AxiosResponse } from 'axios';
 import Redis from 'ioredis';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,8 @@ import { ContentfulProduct } from '../interfaces/contentful-product.interface';
 import { InjectRedis } from 'src/redis/redis.decorators';
 import { ProductFilters } from '../types/product-filters.type';
 import { PaginatedProductsResponse } from '../types/paginated-products';
+import * as path from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class ProductsService {
@@ -19,20 +21,16 @@ export class ProductsService {
 
   // Main function for fetch and save contentful product in postgres if they don not exist
   async autoFetchAndSaveProducts(): Promise<number> {
-    try {
-      const items = await this.fetchProductsFromContentful();
-      const { newItems, newKeys } = await this.filterExistingProducts(items);
-      const productsToInsert = this.mapItemsToProducts(newItems);
+    const items = await this.fetchProductsFromContentful();
+    const { newItems, newKeys } = await this.filterExistingProducts(items);
+    const productsToInsert = this.mapItemsToProducts(newItems);
 
-      await this.markProductsInRedis(newKeys);
+    await this.markProductsInRedis(newKeys);
 
-      if (!productsToInsert.length) return 0;
+    if (!productsToInsert.length) return 0;
 
-      const insertedProductsArray = await this.productRepo.save(productsToInsert);
-      return insertedProductsArray.length;
-    } catch {
-      throw new HttpException('Failed to fetch products', 500);
-    }
+    const insertedProductsArray = await this.productRepo.save(productsToInsert);
+    return insertedProductsArray.length;
   }
 
   // Fetch products from Contentful API
@@ -131,7 +129,7 @@ export class ProductsService {
     return query;
   }
 
-  public async removeProduct(id: string) {
+  public async removeProduct(id: string): Promise<{ success: boolean; removedId: string }> {
     const result = await this.productRepo.softDelete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Product with id ${id} not found`);
@@ -140,7 +138,16 @@ export class ProductsService {
     return { success: true, removedId: id };
   }
 
-  async getAllProducts() {
-    return this.productRepo.find();
+  public async seedMockProductsFromFile(): Promise<{ success: boolean }> {
+    const filePath = path.join(process.cwd(), 'src', 'data', 'initial-products.json');
+    const rawData = fs.readFileSync(filePath, 'utf-8');
+    const initialProducts: Partial<Product>[] = JSON.parse(rawData) as Partial<Product>[];
+    const products = this.productRepo.create(initialProducts);
+
+    await this.productRepo.save(products);
+
+    return {
+      success: true,
+    };
   }
 }

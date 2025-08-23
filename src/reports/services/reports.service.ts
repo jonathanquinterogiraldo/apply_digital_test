@@ -24,7 +24,7 @@ export class ReportsService {
   ) {}
 
   async getDeletedPercentage(): Promise<DeletedPercentageReportDto> {
-    const total = await this.productRepo.count();
+    const total = await this.productRepo.count({ withDeleted: true });
     if (total === 0) return { deletedPercentage: 0, notDeletedPercentage: 0 };
 
     const deleted = await this.productRepo.count({

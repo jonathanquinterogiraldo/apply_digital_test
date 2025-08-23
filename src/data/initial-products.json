@@ -1,0 +1,122 @@
+[
+    {
+        "sku": "sku0",
+        "name": "name0",
+        "brand": "brand0",
+        "model": "model0",
+        "category": "category1",
+        "color": "color1",
+        "price": 10,
+        "currency": "cur",
+        "stock": 20,
+        "id": "id0"
+    },
+    {
+        "sku": "sku1",
+        "name": "name1",
+        "brand": "brand0",
+        "model": "model1",
+        "category": "category1",
+        "color": "color1",
+        "price": 20,
+        "currency": "cur",
+        "stock": 30,
+        "id": "id1"
+    },
+    {
+        "sku": "sku2",
+        "name": "name2",
+        "brand": "brand1",
+        "model": "model2",
+        "category": "category2",
+        "color": "color2",
+        "price": 30,
+        "currency": "cur",
+        "stock": 60,
+        "id": "id2"
+    },
+    {
+        "sku": "sku3",
+        "name": "name3",
+        "brand": "brand1",
+        "model": "model3",
+        "category": "category2",
+        "color": "color2",
+        "price": 40,
+        "currency": "cur",
+        "stock": 10,
+        "id": "id3"
+    },
+    {
+        "sku": "sku4",
+        "name": "name4",
+        "brand": "brand2",
+        "model": "model4",
+        "category": "category3",
+        "color": "color 3",
+        "price": 50,
+        "currency": "cur",
+        "stock": 30,
+        "id": "id4"
+    },
+    {
+        "sku": "sku5",
+        "name": "name5",
+        "brand": "brand2",
+        "model": "model5",
+        "category": "category3",
+        "color": "color4",
+        "price": 60,
+        "currency": "cur",
+        "stock": 15,
+        "id": "id5"
+    },
+    {
+        "sku": "sku6",
+        "name": "name6",
+        "brand": "brand2",
+        "model": "model6",
+        "category": "category4",
+        "color": "color4",
+        "price": 70,
+        "currency": "cur",
+        "stock": 10,
+        "id": "id6"
+    },
+    {
+        "sku": "sku7",
+        "name": "name7",
+        "brand": "brand3",
+        "model": "model7",
+        "category": "category4",
+        "color": "color5",
+        "price": 80,
+        "currency": "cur",
+        "stock": 90,
+        "id": "id7"
+    },
+    {
+        "sku": "sku8",
+        "name": "name8",
+        "brand": "brand3",
+        "model": "model8",
+        "category": "category5",
+        "color": "color5",
+        "price": 90,
+        "currency": "cur",
+        "stock": 50,
+        "id": "id8"
+    },
+    {
+        "sku": "sku9",
+        "name": "name9",
+        "brand": "brand3",
+        "model": "model9",
+        "category": "category6",
+        "color": "color5",
+        "price": 90,
+        "currency": "cur",
+        "stock": 70,
+        "id": "id9"
+    }
+]
