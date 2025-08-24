@@ -7,37 +7,45 @@ import { WithOrWithoutPriceReportDto } from '../dto/with-or-without-price-percen
 import { TopBrandReportDto } from '../dto/top-brand-percentage.report.dto';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth-guard';
-import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiOkResponse, ApiQuery } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
-@ApiTags('reports')
+@ApiTags('Reports')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT')
 @UseGuards(AuthGuard('jwt'))
 @Controller('reports')
 export class ReportsController {
-    constructor(private readonly reportsService: ReportsService) { }
+  constructor(private readonly reportsService: ReportsService) {}
 
-    @Get('deleted-percentage')
-    @ApiOperation({ summary: 'Deleted percentage reprot (user registered only)' })
-    async getDeletedPercentage(): Promise<DeletedPercentageReportDto> {
-        const report = await this.reportsService.getDeletedPercentage();
-        return plainToInstance(DeletedPercentageReportDto, report, { excludeExtraneousValues: true });
-    }
+  @Get('deleted-percentage')
+  @ApiOperation({ summary: 'Deleted percentage report (user registered only)' })
+  @ApiOkResponse({ type: DeletedPercentageReportDto })
+  @ApiOperation({ summary: 'Deleted percentage reprot (user registered only)' })
+  async getDeletedPercentage(): Promise<DeletedPercentageReportDto> {
+    const report = await this.reportsService.getDeletedPercentage();
+    return plainToInstance(DeletedPercentageReportDto, report, { excludeExtraneousValues: true });
+  }
 
-    @Get('with-or-without-price')
-    @ApiOperation({ summary: 'With or without price report (user registered only)' })
-    async getWithOrWithoutPrice(
-        @Query() dateRange: DateRangeDto,
-    ): Promise<WithOrWithoutPriceReportDto> {
-        const report = await this.reportsService.getWithOrWithoutPrice(dateRange);
-        return plainToInstance(WithOrWithoutPriceReportDto, report, { excludeExtraneousValues: true });
-    }
+  @Get('with-or-without-price')
+  @ApiOperation({ summary: 'With or without price report (user registered only)' })
+  @ApiOkResponse({ type: WithOrWithoutPriceReportDto })
+  @ApiQuery({ name: 'startDate', required: false, type: String, example: '2025-01-01' })
+  @ApiQuery({ name: 'endDate', required: false, type: String, example: '2025-01-31' })
+  @ApiOperation({ summary: 'With or without price report (user registered only)' })
+  async getWithOrWithoutPrice(
+    @Query() dateRange: DateRangeDto,
+  ): Promise<WithOrWithoutPriceReportDto> {
+    const report = await this.reportsService.getWithOrWithoutPrice(dateRange);
+    return plainToInstance(WithOrWithoutPriceReportDto, report, { excludeExtraneousValues: true });
+  }
 
-    @Get('top-brand-percentage')
-    @ApiOperation({ summary: 'top brand percentage report (user registered only)' })
-    async getTopBrands(): Promise<TopBrandReportDto[]> {
-        const report = await this.reportsService.getTopBrands();
-        return plainToInstance(TopBrandReportDto, report, { excludeExtraneousValues: true });
-    }
+  @Get('top-brand-percentage')
+  @ApiOperation({ summary: 'Top brand percentage report (user registered only)' })
+  @ApiOkResponse({ type: TopBrandReportDto, isArray: true })
+  @ApiOperation({ summary: 'top brand percentage report (user registered only)' })
+  async getTopBrands(): Promise<TopBrandReportDto[]> {
+    const report = await this.reportsService.getTopBrands();
+    return plainToInstance(TopBrandReportDto, report, { excludeExtraneousValues: true });
+  }
 }
