@@ -92,16 +92,33 @@ GET http://localhost:3000/reports/top-brand-percentage
 ```
 
 NOTES: 
--The API is completely documented through swagger using "http://localhost:3000/api/docs"
--The strategy selected in terms of only save new products every hour from contenful API is using redis to compare which products are already stored in postgres
--Stack used: NodeJS, NestJs, Typescript, Jest, TypeORM, Class-Validator, Postgres, Redis, Swagger, ESLint, Prettier, Docker, Github, JWT, Terminus, PassportJS
--Extra features:
-Redis to avoid querying data base in order to improve performance
-Health endpoint to check databases status
-Exception Filter in order to return a standard errors response
-Population from json file in case API is not available
-Validation if user send "Price" as search parameter
-Validation is user send a max value for limit pagination
+-The API is completely documented through swagger using "http://localhost:3000/api/docs"  
+
+-The strategy selected in terms of only save new products every hour from contenful API is using redis to compare which products are already stored in postgres  
+
+-Stack used: NodeJS, NestJs, Typescript, Jest, TypeORM, Class-Validator, Postgres, Redis, Swagger, ESLint, Prettier, Docker, Github, JWT, Terminus, PassportJS  
+
+-Extra features:  
+
+### Feature 1
+Redis to avoid querying data base in order to improve performance  
+
+### Feature 2
+Health endpoint to check databases status  
+
+### Feature 3
+Exception Filter in order to return a standard errors response 
+
+### Feature 4
+Population from json file in case API is not available  
+
+### Feature 5
+Validation if user send "Price" as search parameter  
+
+### Feature 6
+Validation is user send a max value for limit pagination  
+
+### Feature 7
 Unit test coverage upper than 70%
 
 
