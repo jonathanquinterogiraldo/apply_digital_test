@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TerminusModule } from '@nestjs/terminus';
 import { TypeOrmHealthIndicator } from '@nestjs/terminus';
-import { HealthController } from './health.controller';
+import { HealthController } from './controllers/health.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import Redis from 'ioredis';
-import { RedisHealthIndicator } from './redis.healt.indicator';
+import { RedisHealthIndicator } from './services/redis.health.indicator';
+import { HealthService } from './services/health.service';
 
 @Module({
   imports: [TerminusModule, TypeOrmModule],
@@ -24,6 +25,7 @@ import { RedisHealthIndicator } from './redis.healt.indicator';
       useFactory: (client: Redis) => new RedisHealthIndicator(client),
       inject: ['REDIS_CLIENT'],
     },
+    HealthService,
   ],
   exports: ['REDIS_CLIENT', RedisHealthIndicator],
 })

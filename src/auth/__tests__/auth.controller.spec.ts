@@ -26,9 +26,11 @@ describe('AuthController', () => {
         {
           provide: UsersService,
           useValue: {
-            findByUsername: jest
-              .fn()
-              .mockResolvedValue({ id: 1, username: 'test', password: 'hashed' }),
+            findByUsername: jest.fn().mockResolvedValue({
+              id: 1,
+              username: 'test',
+              password: 'hashed',
+            }),
           },
         },
       ],
@@ -37,14 +39,18 @@ describe('AuthController', () => {
     controller = module.get<AuthController>(AuthController);
   });
 
-  describe('AuthController', () => {
-    it('should be defined', () => {
-      expect(controller).toBeDefined();
-    });
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
 
-    it('login', async () => {
-      const response = await controller.login({ username: 'username', password: 'password' });
-      expect(response).toStrictEqual({ token: 'mockToken' });
-    });
+  it('should login successfully', async () => {
+    // Arrange
+    const credentials = { username: 'username', password: 'password' };
+
+    // Act
+    const response = await controller.login(credentials);
+
+    // Assert
+    expect(response).toStrictEqual({ token: 'mockToken' });
   });
 });
