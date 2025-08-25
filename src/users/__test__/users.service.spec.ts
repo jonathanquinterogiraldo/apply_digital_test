@@ -3,6 +3,7 @@ import { UsersService } from '../services/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity/user.entity';
 import * as bcrypt from 'bcrypt';
+import { Repository } from 'typeorm';
 
 jest.mock('bcrypt', () => ({
   hash: jest.fn(),
@@ -10,7 +11,7 @@ jest.mock('bcrypt', () => ({
 
 describe('UsersService', () => {
   let service: UsersService;
-  let userRepoMock: any;
+  let userRepoMock: Partial<Record<keyof Repository<User>, jest.Mock>>;
 
   beforeEach(async () => {
     userRepoMock = {
@@ -37,8 +38,8 @@ describe('UsersService', () => {
 
     (bcrypt.hash as jest.Mock).mockResolvedValue(hashedPassword);
 
-    userRepoMock.create.mockReturnValue(savedUser);
-    userRepoMock.save.mockResolvedValue(savedUser);
+    userRepoMock.create!.mockReturnValue(savedUser);
+    userRepoMock.save!.mockResolvedValue(savedUser);
 
     const result = await service.createUser(createUserDto);
 
@@ -58,7 +59,7 @@ describe('UsersService', () => {
 
   it('should find user by username', async () => {
     const mockUser = { username: 'testuser', password: 'hashed123' };
-    userRepoMock.findOne.mockResolvedValue(mockUser);
+    userRepoMock.findOne!.mockResolvedValue(mockUser);
 
     const result = await service.findByUsername('testuser');
 

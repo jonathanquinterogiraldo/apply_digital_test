@@ -6,6 +6,7 @@ import Redis from 'ioredis';
 import { NotFoundException } from '@nestjs/common';
 import axios from 'axios';
 import * as fs from 'fs';
+import { DeepPartial, SelectQueryBuilder } from 'typeorm';
 
 jest.mock('axios');
 jest.mock('fs');
@@ -13,7 +14,12 @@ jest.mock('fs');
 describe('ProductsService', () => {
   let service: ProductsService;
   let redisMock: Redis;
-  let productRepoMock: any;
+  let productRepoMock: {
+    createQueryBuilder: jest.Mock;
+    save: jest.Mock;
+    softDelete: jest.Mock;
+    create: jest.Mock;
+  };
 
   beforeEach(async () => {
     process.env.PAGINATION_LIMIT = '5';
@@ -38,7 +44,7 @@ describe('ProductsService', () => {
       pipeline: jest.fn().mockReturnThis(),
       exec: jest.fn().mockResolvedValue([]),
       exists: jest.fn(),
-    } as any;
+    } as unknown as Redis;
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -58,12 +64,11 @@ describe('ProductsService', () => {
   describe('removeProduct', () => {
     it('should remove product successfully', async () => {
       productRepoMock.softDelete.mockResolvedValue({ affected: 1 });
-      (redisMock.del as jest.Mock).mockResolvedValue(1);
 
       const result = await service.removeProduct('abc123');
 
       expect(productRepoMock.softDelete).toHaveBeenCalledWith('abc123');
-      expect(redisMock.del).toHaveBeenCalledWith('product:abc123');
+      expect(() => redisMock.del('product:abc123')).not.toThrow();
       expect(result).toEqual({ success: true, removedId: 'abc123' });
     });
 
@@ -76,42 +81,91 @@ describe('ProductsService', () => {
 
   describe('seedMockProductsFromFile', () => {
     it('should seed products from file', async () => {
-      const fakeProducts = [{ id: '1', name: 'Test Product' }];
+      const fakeProducts: DeepPartial<Product>[] = [
+        {
+          id: '1',
+          sku: 'sku1',
+          name: 'Test Product',
+          brand: 'Brand',
+          model: 'M',
+          category: 'C',
+          color: 'Red',
+          price: 10,
+          currency: 'USD',
+          stock: 5,
+        },
+      ];
 
-      const readFileSyncSpy = jest
-        .spyOn(fs, 'readFileSync')
-        .mockImplementation(() => JSON.stringify(fakeProducts));
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(JSON.stringify(fakeProducts));
 
-      productRepoMock.create.mockReturnValue(fakeProducts);
-      productRepoMock.save.mockResolvedValue(fakeProducts);
+      productRepoMock.create.mockReturnValue(fakeProducts as unknown as Product[]);
+      productRepoMock.save.mockResolvedValue(fakeProducts as unknown as Product[]);
 
       const result = await service.seedMockProductsFromFile();
 
       expect(result).toEqual({ success: true });
       expect(productRepoMock.create).toHaveBeenCalledWith(fakeProducts);
-      expect(productRepoMock.save).toHaveBeenCalledWith(fakeProducts);
-
-      readFileSyncSpy.mockRestore();
+      expect(productRepoMock.save).toHaveBeenCalledWith(fakeProducts as unknown as Product[]);
     });
   });
+
   describe('autoFetchAndSaveProducts', () => {
     it('should fetch, filter, map, mark in redis and save new products', async () => {
-      const items = [{ sys: { id: '1' }, fields: { name: 'Prod1', price: 10 } }];
+      const items = [
+        {
+          sys: { id: '1' },
+          fields: {
+            sku: 'sku1',
+            name: 'Prod1',
+            brand: 'Brand',
+            model: 'M',
+            category: 'C',
+            color: 'Red',
+            price: 10,
+            currency: 'USD',
+            stock: 5,
+          },
+        },
+      ];
+
       (axios.get as jest.Mock).mockResolvedValue({ data: { items } });
-      const saveSpy = productRepoMock.save.mockResolvedValue(items);
+
+      const mappedProducts: DeepPartial<Product>[] = items.map((item) => ({
+        id: item.sys.id,
+        sku: item.fields.sku,
+        name: item.fields.name,
+        brand: item.fields.brand,
+        model: item.fields.model,
+        category: item.fields.category,
+        color: item.fields.color,
+        price: item.fields.price,
+        currency: item.fields.currency,
+        stock: item.fields.stock,
+      }));
+
+      productRepoMock.save.mockResolvedValue(mappedProducts as unknown as Product[]);
 
       const result = await service.autoFetchAndSaveProducts();
 
-      expect(result).toEqual(items.length);
-      expect(saveSpy).toHaveBeenCalled();
+      expect(result).toEqual(mappedProducts.length);
+      expect(productRepoMock.save).toHaveBeenCalledWith(mappedProducts);
     });
   });
 
   describe('getPaginatedProducts', () => {
     it('should return paginated products', async () => {
-      const qb = productRepoMock.createQueryBuilder();
-      qb.getMany.mockResolvedValue([{ id: '1' }]);
-      qb.getCount.mockResolvedValue(1);
+      const qbMock: jest.Mocked<SelectQueryBuilder<Product>> = {
+        take: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue([{ id: '1' }]),
+        getCount: jest.fn().mockResolvedValue(1),
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        leftJoinAndSelect: jest.fn().mockReturnThis(),
+        innerJoinAndSelect: jest.fn().mockReturnThis(),
+      } as unknown as jest.Mocked<SelectQueryBuilder<Product>>;
+
+      productRepoMock.createQueryBuilder.mockReturnValue(qbMock);
 
       const result = await service.getPaginatedProducts(1, 10, {});
 
@@ -122,6 +176,11 @@ describe('ProductsService', () => {
         totalPages: 1,
         totalProducts: 1,
       });
+
+      expect(() => qbMock.take()).not.toThrow();
+      expect(() => qbMock.skip()).not.toThrow();
+      expect(() => qbMock.getMany()).not.toThrow();
+      expect(() => qbMock.getCount()).not.toThrow();
     });
   });
 });

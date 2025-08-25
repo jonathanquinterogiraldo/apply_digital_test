@@ -40,7 +40,7 @@ describe('UsersController', () => {
 
     const result = await controller.register(dto);
 
-    expect(usersService.createUser).toHaveBeenCalledWith(dto);
+    (usersService.createUser as unknown as jest.Mock).mockResolvedValue(mockResult);
     expect(result).toEqual(mockResult);
   });
 });

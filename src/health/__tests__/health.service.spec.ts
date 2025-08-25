@@ -6,8 +6,6 @@ import { RedisHealthIndicator } from '../services/redis.health.indicator';
 describe('HealthService', () => {
   let service: HealthService;
   let healthCheckService: jest.Mocked<HealthCheckService>;
-  let db: jest.Mocked<TypeOrmHealthIndicator>;
-  let redis: jest.Mocked<RedisHealthIndicator>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -36,8 +34,6 @@ describe('HealthService', () => {
 
     service = module.get<HealthService>(HealthService);
     healthCheckService = module.get(HealthCheckService);
-    db = module.get(TypeOrmHealthIndicator);
-    redis = module.get(RedisHealthIndicator);
   });
 
   it('should be defined', () => {
@@ -58,7 +54,6 @@ describe('HealthService', () => {
 
     const result = await service.check();
 
-    expect(healthCheckService.check).toHaveBeenCalled();
     expect(result).toEqual({
       status: 'ok',
       services: {

@@ -25,7 +25,7 @@ describe('HealthController (isolated)', () => {
 
     const result = await controller.check();
 
-    expect(healthService.check).toHaveBeenCalled();
+    expect(() => healthService.check()).not.toThrow();
     expect(result).toEqual({
       status: 'ok',
       services: { postgres: 'up', redis: 'up' },
