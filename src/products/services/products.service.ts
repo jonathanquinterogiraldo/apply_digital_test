@@ -17,10 +17,10 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
     @InjectRedis() private readonly redis: Redis,
-  ) {}
+  ) { }
 
   // Main function for fetch and save contentful product in postgres if they don not exist
-  async autoFetchAndSaveProducts(): Promise<number> {
+  async fetchAndSaveProducts(): Promise<number> {
     const items = await this.fetchProductsFromContentful();
     const { newItems, newKeys } = await this.filterExistingProducts(items);
     const productsToInsert = this.mapItemsToProducts(newItems);
@@ -138,8 +138,12 @@ export class ProductsService {
     return { success: true, removedId: id };
   }
 
+  public async fetchProductsManuallyFromApi(): Promise<number> {
+    return await this.fetchAndSaveProducts()
+  }
+
   public async seedMockProductsFromFile(): Promise<{ success: boolean }> {
-    const filePath = path.join(process.cwd(), 'src', 'data', 'initial-products.json');
+    const filePath = path.join(process.cwd(), 'src', 'data', 'mock-products.json');
     const rawData = fs.readFileSync(filePath, 'utf-8');
     const initialProducts: Partial<Product>[] = JSON.parse(rawData) as Partial<Product>[];
     const products = this.productRepo.create(initialProducts);

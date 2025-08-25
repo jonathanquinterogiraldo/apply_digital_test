@@ -43,10 +43,14 @@ $docker-compose up
 GET http://localhost:3000/health
 ```
 
-4. When the project is ready, you will need to populate with mock data since the cron job runs every hour (too much time to wait)
+4. When the project is ready, you will need to populate database for first time, there are two options, first one is to trigger a manually population from API or the second one if API is not available populate with mock data from json file stored in the app with path src/data/mock-products
 
 ```bash
-POST http://localhost:3000/products/seed
+Manually population from Contentful API
+POST http://localhost:3000/products/populate
+
+Manualy population mock data
+POST http://localhost:3000/products/populate
 ```
 
 5. At this point having mock data stored, you will be able to perform searches using different filters such as page, limit, brand, name, minPrice, maxPrice, stock, color, currency, sku, id
@@ -87,11 +91,23 @@ GET http://localhost:3000/reports/with-or-without-price
 GET http://localhost:3000/reports/top-brand-percentage
 ```
 
-NOTE: The API is completely documented through swagger using "http://localhost:3000/api/docs"
+NOTES: 
+-The API is completely documented through swagger using "http://localhost:3000/api/docs"
+-The strategy selected in terms of only save new products every hour from contenful API is using redis to compare which products are already stored in postgres
+-Stack used: NodeJS, NestJs, Typescript, Jest, TypeORM, Class-Validator, Postgres, Redis, Swagger, ESLint, Prettier, Docker, Github, JWT, Terminus, PassportJS
+-Extra features:
+Redis to avoid querying data base in order to improve performance
+Health endpoint to check databases status
+Exception Filter in order to return a standard errors response
+Population from json file in case API is not available
+Validation if user send "Price" as search parameter
+Validation is user send a max value for limit pagination
+Unit test coverage upper than 70%
+
 
 # Personal Contact
 
-Note: If you have any question, do not hesitate in reach out me.
+Note: If you have any question, do not hesitate reach out me.
 
 Cellphone +57 3128672755
 email: jonathan.quintero2657@gmail.com

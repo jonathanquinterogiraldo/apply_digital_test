@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
+import { Controller, Delete, Get, Logger, Param, Post, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam } from '@nestjs/swagger';
 import { ProductsService } from '../services/products.service';
 import { GetProductsDto } from '../dto/get-products.dto';
@@ -27,10 +27,21 @@ export class SeedResponse {
   success: boolean;
 }
 
+export class ManuallyPopulationResponse {
+  @ApiProperty({
+    description: 'Indicates if the manually population process was successful',
+    example: true,
+  })
+  success: boolean;
+}
+
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly logger: Logger
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Get paginated products with optional filters' })
@@ -58,6 +69,21 @@ export class ProductsController {
     return this.productsService.getPaginatedProducts(page, limit, filters);
   }
 
+  @Post('populate')
+  @ApiOperation({ summary: 'Populate product data manually from API' })
+  @ApiResponse({
+    status: 200,
+    description: 'Products successfully added',
+    type: ManuallyPopulationResponse,
+  })
+  async fetchProductsManually(
+  ): Promise<ManuallyPopulationResponse> {
+    this.logger.log('Manually triggered fetching products from Contentful API...');
+    const productsInserted = await this.productsService.fetchProductsManuallyFromApi();
+    this.logger.log(`${productsInserted} product(s) added at ${new Date().toISOString()}`);
+    return { success: true };
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Remove a product by ID' })
   @ApiParam({ name: 'id', type: String, description: 'Product ID' })
@@ -74,8 +100,8 @@ export class ProductsController {
     return this.productsService.removeProduct(id);
   }
 
-  @Post('seed')
-  @ApiOperation({ summary: 'Seed mock products into database from file' })
+  @Post('populate-mock-data')
+  @ApiOperation({ summary: 'Populate mock data products into database from file' })
   @ApiResponse({
     status: 201,
     description: 'Products successfully seeded',

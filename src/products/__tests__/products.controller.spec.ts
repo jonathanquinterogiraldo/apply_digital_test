@@ -4,6 +4,7 @@ import { GetProductsDto } from '../dto/get-products.dto';
 import { PaginatedProductsResponse } from '../types/paginated-products';
 import { ProductsController } from '../controllers/products.controller';
 import { Product } from '../entities/product.entity';
+import { Logger } from '@nestjs/common';
 
 describe('ProductsController', () => {
   let controller: ProductsController;
@@ -19,6 +20,16 @@ describe('ProductsController', () => {
             getPaginatedProducts: jest.fn(),
             removeProduct: jest.fn(),
             seedMockProductsFromFile: jest.fn(),
+          },
+        },
+        {
+          provide: Logger,
+          useValue: {
+            log: jest.fn(),
+            error: jest.fn(),
+            warn: jest.fn(),
+            debug: jest.fn(),
+            verbose: jest.fn(),
           },
         },
       ],

@@ -145,7 +145,7 @@ describe('ProductsService', () => {
 
       productRepoMock.save.mockResolvedValue(mappedProducts as unknown as Product[]);
 
-      const result = await service.autoFetchAndSaveProducts();
+      const result = await service.fetchAndSaveProducts();
 
       expect(result).toEqual(mappedProducts.length);
       expect(productRepoMock.save).toHaveBeenCalledWith(mappedProducts);
