@@ -37,7 +37,7 @@ $docker-compose build
 $docker-compose up
 ```
 
-3. If you want to check the status of the redis and postgres make a request to the following endpoint
+3. If you want to check the status of the redis and postgres data bases make a request to the following endpoint
 
 ```bash
 GET http://localhost:3000/health
@@ -49,7 +49,7 @@ GET http://localhost:3000/health
 POST http://localhost:3000/products/seed
 ```
 
-5. At this point having mock data stored, you will be able to perform searches using different filters such as brand, name, minPrice, maxPrice, stock, color, currency, sku, id
+5. At this point having mock data stored, you will be able to perform searches using different filters such as page, limit, brand, name, minPrice, maxPrice, stock, color, currency, sku, id
 
 ```bash
 GET http://localhost:3000/products
