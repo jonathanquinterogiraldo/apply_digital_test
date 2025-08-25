@@ -49,8 +49,8 @@ GET http://localhost:3000/health
 Manually population from Contentful API
 POST http://localhost:3000/products/populate
 
-Manualy population mock data
-POST http://localhost:3000/products/populate
+Manualy population mock data from JSON file
+POST http://localhost:3000/products/populate-mock-data
 ```
 
 5. At this point having mock data stored, you will be able to perform searches using different filters such as page, limit, brand, name, minPrice, maxPrice, stock, color, currency, sku, id
